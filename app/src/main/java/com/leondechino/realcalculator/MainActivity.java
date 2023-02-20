@@ -44,6 +44,10 @@ public class MainActivity extends AppCompatActivity {
         String chain = "0";
         StrAdd(chain);
     }
+    public void Button1(View view) {
+        String chain = "1";
+        StrAdd(chain);
+    }
     public void Button2(View view) {
         String chain = "2";
         StrAdd(chain);
