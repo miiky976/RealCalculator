@@ -1,27 +1,35 @@
 package com.leondechino.realcalculator;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
     private String input = "";
 
-    private EditText txtInput;
+    private TextView txtInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txtInput = (EditText) findViewById(R.id.txtInput);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        txtInput = (TextView) findViewById(R.id.txtInput);
     }
     private void StrAdd(String chain) {
         input = input + chain;
-        txtInput.setText(txtInput.getText()+chain);
+        txtInput.setText(input);
     }
     public void ButtonAC(View view) {
         txtInput.setText("");
@@ -85,8 +93,16 @@ public class MainActivity extends AppCompatActivity {
         StrAdd(chain);
     }
     public void ButtonLeft(View view) {
-        String chain = "(";
-        StrAdd(chain);
+        if(input.isEmpty()){
+            String chain = "(";
+            StrAdd(chain);
+        }else if(input.substring(input.length() - 1).matches("[-+/*]")){
+            String chain = "(";
+            StrAdd(chain);
+        }else {
+            String chain = "*(";
+            StrAdd(chain);
+        }
     }
     public void ButtonRight(View view) {
         String chain = ")";
@@ -114,7 +130,21 @@ public class MainActivity extends AppCompatActivity {
 
     // TODO terminar e implementar la funcion de la calculadora
     public void ButtonCalculate(View view) {
-        Toast.makeText(this, input, Toast.LENGTH_SHORT).show();
+        txtInput.setText(getResult(input));
+    }
+    String getResult(String data){
+        try{
+            Context context  = Context.enter();
+            context.setOptimizationLevel(-1);
+            Scriptable scriptable = context.initStandardObjects();
+            String finalResult =  context.evaluateString(scriptable,data,"Javascript",1,null).toString();
+            if(finalResult.endsWith(".0")){
+                finalResult = finalResult.replace(".0","");
+            }
+            return finalResult;
+        }catch (Exception e){
+            return "Err";
+        }
     }
 
 }
